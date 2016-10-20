@@ -13,100 +13,59 @@ Sudoku::Sudoku(int grid[])	//Constructor
     for(int i = 0; i < 81; i++)
     {
         Sudoku::grid[i / 9][i % 9] = grid[i];
-        Sudoku::buffer[i / 9][i % 9] = grid[i];
     }
-
-    solved = 0;
 }
 
 void Sudoku::printGrid()	//Display the grid
 {
-    for(int i = 0; i < 81; i++)
-    {
-        cout << Sudoku::buffer[i / 9][i % 9];
-
-        if(i % 3 == 2 && i % 9 != 8)
-        {
-            cout << '|';
-        }
-
-        if(i % 9 == 8)
-        {
-            cout << endl;
-        }
-
-        if((i / 10) % 3 == 2 && i % 9 == 8 && i != 80)
-        {
-            cout << "---+---+---" << endl;
-        }
-    }
-}
-
-void Sudoku::solveGrid()	//Calls recursiveSolve()
-{
-    recursiveSolve(Sudoku::grid, Sudoku::buffer);
-}
-
-bool Sudoku::recursiveSolve(int grid[][9], int buffer[][9]) //Recursively solves the grid
-{
-    //---Base case: Sudoku is solved---//
-    for(int i = 0; i < 81; i++)
-    {
-        int count = 0;
-        if(grid[i / 9][i % 9] != 0)
-        {
-            count++;
-        }
-
-        if(count == 81)
-        {
-            return true;
-        }
-    }
-
-    //---Recursive case---//
-    for(int i = 0; i < 81; i++)
-    {
-        int currentRow = i / 9;
-        int currentColumn = i % 9;
-
-        if(grid[currentRow][currentColumn] == 0)
-        {
-
-            for(int j = 1; j <= 9; j++)
-            {
-                if(checkPlacement(currentRow, currentColumn, j))
-                {
-                    cout << "Trying " << j << " at " << currentRow << ", " << currentColumn << endl;
-
-                    buffer[currentRow][currentColumn] = j;
-                    recursiveSolve(grid, buffer);
-                }
-            }
-        }
-    }
-
-    return false;
-}
-
-bool Sudoku::checkPlacement(int row, int column, int value)
-{
-    int rowCheck = (row / 3) * 3;
-    int columnCheck = (column / 3) * 3;
+    cout << "+-----+-----+-----+" << endl;
 
     for(int i = 0; i < 9; i++)
     {
-        if(Sudoku::buffer[row][i] == value || Sudoku::buffer[i][column] == value) //Check row and column
+        cout << "|";
+
+        for(int j = 0; j < 9; j++)
+        {
+            cout << Sudoku::grid[i][j];
+
+            if(j % 3 < 2)
+            {
+                cout << " ";
+            }
+            else
+            {
+                cout << "|";
+            }
+        }
+
+        if(i % 3 == 2)
+        {
+            cout << endl << "+-----+-----+-----+";
+        }
+
+        cout << endl;
+    }
+
+}
+
+bool Sudoku::checkPlacement(int row, int column, int value) //Check if placement of cell is valid
+{
+    for(int i = 0; i < 9; i++)
+    {
+        if(Sudoku::grid[row][i] == value || Sudoku::grid[i][column] == value) //Check row and column
         {
             return false;
         }
     }
 
-    for(int i = 0; i < rowCheck; i++)
+    int rowCheck = (row / 3) * 3;
+    int columnCheck = (column / 3) * 3;
+
+    for(int i = rowCheck; i < rowCheck + 3; i++)   //Check block
     {
-        for(int j = 0; j < columnCheck; j++)
+        for(int j = columnCheck; j < columnCheck + 3; j++)
         {
-            if(Sudoku::buffer[i][j] == value)
+            if(Sudoku::grid[i][j] == value)
             {
                 return false;
             }
@@ -114,4 +73,58 @@ bool Sudoku::checkPlacement(int row, int column, int value)
     }
 
     return true;
+}
+
+bool Sudoku::findUnassignedCell(int &row, int &column) //Returns true if any unassigned cell is found
+{
+    for(int i = 0; i < 81; i++)
+    {
+        row = i / 9;
+        column = i % 9;
+
+        if(Sudoku::grid[row][column] == UNASSIGNED)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool Sudoku::solveGrid()    //Calls an algorithm to solve the grid
+{
+    return Sudoku::algoBacktrack() ? true : false;
+}
+
+bool Sudoku::algoBacktrack()    //Solve recursively through backtracking
+{
+    int row = 0, column = 0;
+
+    //---Base case: all cells filled (assume valid due to validation)---//
+    if(!findUnassignedCell(row, column))
+    {
+        return true;
+    }
+
+    //---Recursive case: check for every number in {1,2,3,4,5,6,7,8,9}---//
+    for(int number = 1; number <= 9; number++)
+    {
+        //---Check if placement is valid---//
+        if(checkPlacement(row, column, number))
+        {
+            Sudoku::grid[row][column] = number;
+
+            //---Check if next moves are successful---//
+            if(Sudoku::algoBacktrack())
+            {
+                return true;
+            }
+
+            //---If cannot solve, move on to next number---//
+            Sudoku::grid[row][column] = UNASSIGNED;
+        }
+    }
+
+    //---If current try is invalid, backtrack---//
+    return false;
 }

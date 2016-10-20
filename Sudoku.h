@@ -10,18 +10,19 @@
 
 #include <iostream>
 
+const int UNASSIGNED = 0;
+
 class Sudoku
 {
     int grid[9][9];		//9x9 Sudoku grid [column][row]
-    int buffer[9][9];	//9x9 buffer grid to store any changes
-    bool solved;		//Flag to check if Sudoku is solved
-    bool recursiveSolve(int grid[][9], int buffer[][9]); //Recursively solves the grid
+    bool algoBacktrack(); //Solve recursively through backtracking
     bool checkPlacement(int row, int column, int value);   //Check if placement of cell is valid
+    bool findUnassignedCell(int &row, int &column); //Returns true if unassigned cell is found
 
 public:
     Sudoku(int grid[]);	//Constructor
     void printGrid();	//Display the Sudoku grid
-    void solveGrid();	//Calls recursiveSolve()
+    bool solveGrid();	//Calls an algorithm to solve the grid
 };
 
 #endif /* CLASS_H */
