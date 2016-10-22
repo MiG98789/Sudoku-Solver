@@ -101,7 +101,7 @@ bool Sudoku::algoBacktrack()    //Solve recursively through backtracking
     int row = 0, column = 0;
 
     //---Base case: all cells filled (assume valid due to validation)---//
-    if(!findUnassignedCell(row, column))
+    if(!Sudoku::findUnassignedCell(row, column))
     {
         return true;
     }
@@ -110,7 +110,7 @@ bool Sudoku::algoBacktrack()    //Solve recursively through backtracking
     for(int number = 1; number <= 9; number++)
     {
         //---Check if placement is valid---//
-        if(checkPlacement(row, column, number))
+        if(Sudoku::checkPlacement(row, column, number))
         {
             Sudoku::grid[row][column] = number;
 
